@@ -5,13 +5,13 @@
 
 namespace hldb
 {
-    
+    enum { no_id = 0 };
+
     using size_t = std::size_t;
 
     struct empty { };
 
     class dobject;
-    class dclass;
 }
 
 #endif // HLDB_FWD_HPP
