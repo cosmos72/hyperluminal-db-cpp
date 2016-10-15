@@ -1,3 +1,14 @@
 a.out
-*.obj
+*.o
+*.a
 *~
+.deps
+configure
+Makefile.in
+Makefile
+autom4te.cache
+config.log
+configure.ac
+src/hldb_example
+src/hldb/stamp-h1
+src/hldb/config.h
