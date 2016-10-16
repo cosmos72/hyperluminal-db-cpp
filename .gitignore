@@ -3,7 +3,6 @@ a.out
 *.a
 *~
 .deps
-configure
 Makefile.in
 Makefile
 autom4te.cache

@@ -1,12 +1,14 @@
-#include "hldb/dvar.hpp"
 #include "hldb/dobject.hpp"
+#include "hldb/dclass.hpp"
 
 
 using namespace hldb;
 
 int main()
 {
-    dvar<const dobject *> abc((const dobject *)1);
-    return (size_t)(abc += 2);
+  dobject * obj = new dobject();
+  int ret = obj->get_id();
+  obj->destroy();
+  return ret;
 }
 
