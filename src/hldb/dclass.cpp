@@ -1,55 +1,68 @@
+#include "hldb/config.h"
+
+#if defined(HAVE_CSTRING)
+# include <string.h>
+#elif defined(HAVE_STRING_H)
+# include <string.h>
+#endif
+
 #include <vector>
 #include <map>
 
 #include "hldb/dclass.hpp"
 
+using namespace std;
+
+struct chars_less
+{
+    inline bool operator()(const char * lhs, const char * rhs) const
+    {
+        return strcmp(lhs ? lhs : "", rhs ? rhs : "") < 0;
+    }
+};
+
+
+
 namespace hldb
 {
-  static std::vector<dclass *>  all_classes_by_id;
-  static std::map<std::string, dclass *> all_classes_by_name;
-        
-  dclass * const dclass_dobject = new dclass("dobject", NULL);
-  dclass * const dclass_dclass  = new dclass("dclass", dclass_dobject);
-
-  dclass::dclass(const char * class_name, dclass * super_class)
-    : dobject(no_id), _next_instance_id(), _super_class(super_class),
-      _class_name(class_name), _instance_destructor(NULL)
-  {
-    dclass * cls = dclass_dclass;
-    size_t id;
-    if (cls != NULL)
-    {
-      id = _id = cls->next_instance_id();
-      _class_id = cls->get_id();
-    }
-    else
-    {
-      static size_t bootstrap_id = 0;
-      id = _id = ++bootstrap_id;
-      _class_id = 2;
-      if (id == 2)
-      {
-        /* we are initializing dclass_dclass */
-        _next_instance_id = id;
-      }
-    }
-      
-    if (all_classes_by_id.size() <= id)
-      all_classes_by_id.resize(id + 1);
-    all_classes_by_id[id] = this;
-    all_classes_by_name[_class_name] = this;
-  }
-
-  dclass * dclass::get_class_by_id(size_t class_id)
-  {
-    size_t max_id =  all_classes_by_id.size();
-    return class_id < max_id ? all_classes_by_id[class_id] : NULL;
-  }
-
-  dclass * dclass::get_class_by_name(const std::string & class_name)
-  {
-    std::map<std::string, dclass *>::const_iterator iter = all_classes_by_name.find(class_name);
-    return iter != all_classes_by_name.end() ? iter->second : NULL;
-  }
-}
+    typedef map<const char *, const dclass *, chars_less> classes_map_type;
     
+    static classes_map_type classes;
+
+    const dclass * const dclass_dobject = new dclass(1, 2, 0, NULL,           "dobject");
+    const dclass * const dclass_dclass  = new dclass(2, 2, 2, dclass_dobject, "dclass");
+    
+    void bootstrap_classes()
+    {
+        const_cast<dclass *>(dclass_dobject)->register_class();
+        const_cast<dclass *>(dclass_dclass)->register_class();
+    }
+
+    static bool bootstrapped = (bootstrap_classes(), true);
+
+    dclass::dclass(size_t id, size_t class_id, size_t next_instance_id, const dclass * super, const char * name)
+        : dobject(id, class_id), _next_instance_id(next_instance_id), _super(super), _name(name)
+    {
+        /* cannot call register_class() yet, dclass_dclass is still NULL */
+    }
+
+    dclass::dclass(const char * name, const dclass * super)
+        : dobject(dclass_dclass), _next_instance_id(no_id), _super(super),
+        _name(name), _instance_destructor(NULL)
+    {
+        register_class();
+    }
+    
+    void dclass::register_class()
+    {
+        dclass_dclass->register_instance(this);
+        classes[_name] = this;
+    }
+    
+    const dclass * dclass::find_class(const char * class_name)
+    {
+        classes_map_type::const_iterator iter = classes.find(class_name);
+        return iter != classes.end() ? iter->second : NULL;
+    }
+}
+

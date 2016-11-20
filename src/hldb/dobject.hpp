@@ -9,25 +9,25 @@ namespace hldb
     class dobject
     {
     private:
-      friend class dclass;
+        friend class dclass;
       
-      size_t _id, _class_id;
-
-      // do not initialize. used by dclass() constructor
-      inline dobject(size_t dummy)
-      { }
-
+        size_t _id, _class_id;
+        
+        /* only used for bootstrap */
+        inline dobject(size_t id, size_t class_id) : _id(id), _class_id(class_id)
+        { }
+        
     protected:
-      ~dobject();
-
+        ~dobject();
+        
     public:
-      explicit dobject(dclass * cls = dclass_dobject);
-
-      inline size_t get_id() const { return _id; }
-      dclass * get_class() const;
-
-      void destroy();
+        explicit dobject(const dclass * cls = dclass_dobject);
+        
+        inline size_t get_id() const { return _id; }
+        const dclass * get_class() const;
+        
+        void destroy();
     };
 }
-    
+
 #endif // HLDB_DOBJECT_HPP

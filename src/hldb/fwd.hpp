@@ -7,15 +7,15 @@ namespace hldb
 {
   enum { no_id = 0 };
 
-  using size_t = std::size_t;
+  typedef std::size_t size_t;
 
   struct empty { };
 
   class dobject;
   class dclass;
   
-  extern dclass * const dclass_dobject;
-  extern dclass * const dclass_dclass;
+  extern const dclass * const dclass_dobject;
+  extern const dclass * const dclass_dclass;
 }
 
 #endif // HLDB_FWD_HPP
